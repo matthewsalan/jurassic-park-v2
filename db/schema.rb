@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_19_043521) do
+ActiveRecord::Schema.define(version: 2021_11_19_194423) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,6 +30,13 @@ ActiveRecord::Schema.define(version: 2021_11_19_043521) do
     t.bigint "cage_id"
     t.string "name"
     t.index ["cage_id"], name: "index_carnivores_on_cage_id"
+  end
+
+  create_table "dinosaurs", id: false, force: :cascade do |t|
+    t.bigint "herbivore_id"
+    t.bigint "carnivore_id"
+    t.index ["carnivore_id", "herbivore_id"], name: "index_dinosaurs_on_carnivore_id_and_herbivore_id"
+    t.index ["herbivore_id", "carnivore_id"], name: "index_dinosaurs_on_herbivore_id_and_carnivore_id"
   end
 
   create_table "herbivores", force: :cascade do |t|
