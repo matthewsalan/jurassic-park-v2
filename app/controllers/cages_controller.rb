@@ -1,5 +1,5 @@
 class CagesController < ApplicationController
-  before_action :find_cage, only: [:show]
+  before_action :find_cage, only: [:show, :update]
   before_action :find_cages, only: [:index]
 
   def show
@@ -8,6 +8,19 @@ class CagesController < ApplicationController
 
   def index
     @cages
+  end
+
+  def create
+    @cage = Cage.create!(create_params)
+    render template: 'cages/create', status: 201
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e }, status: 404
+  end
+
+  def update
+    @cage.update!(cage_params)
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e }, status: 404
   end
 
   private
@@ -23,6 +36,10 @@ class CagesController < ApplicationController
   end
 
   def cage_params
-    params.permit(:id, filter_by: [:status])
+    params.permit(:id, :species_type, :status, filter_by: [:status])
+  end
+
+  def create_params
+    { species_type: cage_params[:species_type], status: cage_params[:status] }
   end
 end
