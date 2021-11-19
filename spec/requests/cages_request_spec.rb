@@ -87,4 +87,53 @@ RSpec.describe 'Cages', type: :request do
       end
     end
   end
+
+  describe '#create' do
+    let(:body) { JSON.parse(response.body) }
+    let(:params) { { species_type: 'Carnivore', status: 'ACTIVE' } }
+
+    it 'create a cage' do
+      post cages_path, params: params, as: :json
+      expect(response.status).to eq 201
+    end
+
+    it 'returns the new cage instance' do
+      post cages_path, params: params, as: :json
+      expect(body).to eq(
+        { 'id' => Cage.last.id, 'status' => 'ACTIVE', 'species_type' => 'Carnivore', 'current_capacity' => 0 }
+      )
+    end
+
+    context 'activerecord rollback on required field' do
+      let(:params) { { status: 'ACTIVE' } }
+
+      it 'returns an error code' do
+        post cages_path, params: params, as: :json
+        expect(response.status).to eq 404
+      end
+
+      it 'returns an error message' do
+        post cages_path, params: params, as: :json
+        expect(body['errors']).to eq "Validation failed: Species type can't be blank"
+      end
+    end
+  end
+
+  describe '#edit' do
+    let(:body) { JSON.parse(response.body) }
+    let(:cage) { Cage.create(species_type: 'Carnivore', status: 'ACTIVE') }
+    let(:params) { { status: 'DOWN' } }
+
+    it 'updates a cage and returns a success status code' do
+      put cage_path(cage.id), params: params, as: :json
+      expect(response.status).to eq 200
+    end
+
+    it 'returns the new cage instance' do
+      put cage_path(cage.id), params: params, as: :json
+      expect(body).to eq(
+        { 'id' => cage.id, 'status' => 'DOWN', 'species_type' => 'Carnivore', 'current_capacity' => 0 }
+      )
+    end
+  end
 end
