@@ -5,7 +5,7 @@ RSpec.describe Herbivore, type: :model do
     context 'valid dinosaur' do
       let(:cage) { Cage.create }
       let(:dinosaur) { Dinosaur.create(name: 'Dino', cage: cage) }
-      subject { described_class.new(dinosaur: dinosaur) }
+      subject { described_class.new(dinosaur: dinosaur, species: 'Stegosaurus') }
 
       it 'creates a herbivore instance' do
         expect(subject.save).to eq true
@@ -17,16 +17,32 @@ RSpec.describe Herbivore, type: :model do
     end
 
     context 'invlaid dinosaur' do
-      let(:cage) { Cage.create }
-      let(:dinosaur) { Dinosaur.create(cage: cage) }
-      subject { described_class.new(dinosaur: dinosaur) }
+      context 'name required' do
+        let(:cage) { Cage.create }
+        let(:dinosaur) { Dinosaur.create(cage: cage) }
+        subject { described_class.new(dinosaur: dinosaur, species: 'Stegosaurus') }
 
-      it 'doesn create a herbivore instance' do
-        expect(subject.save).to eq false
+        it 'doesn create a herbivore instance' do
+          expect(subject.save).to eq false
+        end
+
+        it 'does not change herbivore instance' do
+          expect { subject.save }.to_not change { Herbivore.count }
+        end
       end
 
-      it 'does not change herbivore instance' do
-        expect { subject.save }.to_not change { Herbivore.count }
+      context 'invalid species' do
+        let(:cage) { Cage.create }
+        let(:dinosaur) { Dinosaur.create(name: 'Dino', cage: cage) }
+        subject { described_class.new(dinosaur: dinosaur, species: 'Velociraptor') }
+
+        it 'doesn create a herbivore instance' do
+          expect(subject.save).to eq false
+        end
+
+        it 'does not change herbivore instance' do
+          expect { subject.save }.to_not change { Herbivore.count }
+        end
       end
     end
   end
