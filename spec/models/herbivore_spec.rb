@@ -4,8 +4,7 @@ RSpec.describe Herbivore, type: :model do
   describe '#create' do
     context 'valid dinosaur' do
       let(:cage) { Cage.create }
-      let(:dinosaur) { Dinosaur.create(name: 'Dino', cage: cage) }
-      subject { described_class.new(dinosaur: dinosaur, species: 'Stegosaurus') }
+      subject { described_class.new(cage: cage, species: 'Stegosaurus', name: 'Dino') }
 
       it 'creates a herbivore instance' do
         expect(subject.save).to eq true
@@ -20,7 +19,7 @@ RSpec.describe Herbivore, type: :model do
       context 'name required' do
         let(:cage) { Cage.create }
         let(:dinosaur) { Dinosaur.create(cage: cage) }
-        subject { described_class.new(dinosaur: dinosaur, species: 'Stegosaurus') }
+        subject { described_class.new(cage: cage, species: 'Stegosaurus') }
 
         it 'doesn create a herbivore instance' do
           expect(subject.save).to eq false
@@ -33,8 +32,7 @@ RSpec.describe Herbivore, type: :model do
 
       context 'invalid species' do
         let(:cage) { Cage.create }
-        let(:dinosaur) { Dinosaur.create(name: 'Dino', cage: cage) }
-        subject { described_class.new(dinosaur: dinosaur, species: 'Velociraptor') }
+        subject { described_class.new(cage: cage, species: 'Velociraptor', name: 'Dino') }
 
         it 'doesn create a herbivore instance' do
           expect(subject.save).to eq false
