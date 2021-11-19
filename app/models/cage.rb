@@ -6,6 +6,9 @@ class Cage < ApplicationRecord
   before_save :verify_species_match?, :verify_capacity
   before_update :verify_cage_status
 
+  scope :active, -> { where(status: 'ACTIVE') }
+  scope :down, -> { where(status: 'DOWN') }
+
   def verify_species_match?
     raise MixedSpeciesError, 'Cage contains dinosaur species' if carnivores.present? && herbivores.present?
   end
