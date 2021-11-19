@@ -60,4 +60,21 @@ RSpec.describe Cage, type: :model do
       end
     end
   end
+
+  describe '#capacity' do
+    let(:carnivore) { Carnivore.create(species: 'Tyrannosaurus', name: 'Trex') }
+    let(:cage) { Cage.create(species_type: 'Carnivore', status: 'ACTIVE', carnivores: [carnivore]) }
+
+    it 'returns the number of dinosaurs in the cage' do
+      expect(cage.current_capacity).to eq 1
+    end
+
+    context 'max capacity' do
+      before { allow(cage).to receive(:current_capacity).and_return(10) }
+
+      it "doesn't allow adding more than 10 dinosaurs to a cage" do
+        expect { cage.update(carnivores: [carnivore]) }.to raise_error('Exceeds number of dinosaurs allowed per cage')
+      end
+    end
+  end
 end
