@@ -20,10 +20,35 @@ RSpec.describe Cage, type: :model do
   end
 
   describe 'species logic' do
-    let(:cage) { Cage.create(species_type: 'Carnivore') }
+    let(:carnivore1) { Carnivore.create(species: 'Tyrannosaurus', name: 'Trex') }
+    let(:carnivore2) { Carnivore.create(species: 'Velociraptor', name: 'Raptor') }
+    let(:herbivore1) { Herbivore.create(species: 'Stegosaurus', name: 'Steggy') }
 
     context 'carnivores' do
-      it 'creates a cage with only carnivores' do
+      let(:cage) { Cage.create(species_type: 'Carnivore', carnivores: [carnivore1, carnivore2]) }
+
+      it 'creates a cage with some dinosaurs in it' do
+        carnivore1
+        carnivore2
+        expect(cage.reload.carnivores.count).to eq 2
+      end
+
+      context 'same species' do
+        let(:cage) { Cage.create(species_type: 'Carnivore', carnivores: [carnivore1, carnivore2], herbivores: [herbivore1]) }
+
+        it 'creates a cage with only carnivores' do
+          carnivore1
+          carnivore2
+          herbivore1
+          expect { cage }.to raise_error
+        end
+
+        it 'returns an error message' do
+          carnivore1
+          carnivore2
+          herbivore1
+          expect { cage }.to raise_error('Cage contains dinosaur species')
+        end
       end
     end
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_19_015624) do
+ActiveRecord::Schema.define(version: 2021_11_19_043521) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,26 +25,20 @@ ActiveRecord::Schema.define(version: 2021_11_19_015624) do
 
   create_table "carnivores", force: :cascade do |t|
     t.string "species"
-    t.bigint "dinosaur_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["dinosaur_id"], name: "index_carnivores_on_dinosaur_id"
-  end
-
-  create_table "dinosaurs", force: :cascade do |t|
-    t.string "name"
     t.bigint "cage_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["cage_id"], name: "index_dinosaurs_on_cage_id"
+    t.string "name"
+    t.index ["cage_id"], name: "index_carnivores_on_cage_id"
   end
 
   create_table "herbivores", force: :cascade do |t|
     t.string "species"
-    t.bigint "dinosaur_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["dinosaur_id"], name: "index_herbivores_on_dinosaur_id"
+    t.bigint "cage_id"
+    t.string "name"
+    t.index ["cage_id"], name: "index_herbivores_on_cage_id"
   end
 
 end

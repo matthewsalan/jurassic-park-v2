@@ -1,7 +1,7 @@
 class Herbivore < ApplicationRecord
-  belongs_to :dinosaur
+  belongs_to :cage
   before_save :veryify_valid_species?
-  accepts_nested_attributes_for :dinosaur
+  validates :name, presence: true
 
   VALID_SPECIES = %w[Brachiosaurus Stegosaurus Ankylosaurus Triceratops].freeze
 
