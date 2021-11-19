@@ -20,35 +20,43 @@ RSpec.describe Cage, type: :model do
   end
 
   describe 'species logic' do
-    let(:carnivore1) { Carnivore.create(species: 'Tyrannosaurus', name: 'Trex') }
-    let(:carnivore2) { Carnivore.create(species: 'Velociraptor', name: 'Raptor') }
-    let(:herbivore1) { Herbivore.create(species: 'Stegosaurus', name: 'Steggy') }
+    let(:carnivore) { Carnivore.create(species: 'Tyrannosaurus', name: 'Trex') }
+    let(:herbivore) { Herbivore.create(species: 'Stegosaurus', name: 'Steggy') }
 
     context 'carnivores' do
-      let(:cage) { Cage.create(species_type: 'Carnivore', carnivores: [carnivore1, carnivore2]) }
+      let(:cage) { Cage.create(species_type: 'Carnivore', carnivores: [carnivore]) }
 
       it 'creates a cage with some dinosaurs in it' do
-        carnivore1
-        carnivore2
-        expect(cage.reload.carnivores.count).to eq 2
+        carnivore
+        expect(cage.reload.carnivores.count).to eq 1
       end
 
       context 'same species' do
-        let(:cage) { Cage.create(species_type: 'Carnivore', carnivores: [carnivore1, carnivore2], herbivores: [herbivore1]) }
+        let(:cage) { Cage.create(species_type: 'Carnivore', carnivores: [carnivore], herbivores: [herbivore]) }
 
         it 'creates a cage with only carnivores' do
-          carnivore1
-          carnivore2
-          herbivore1
+          carnivore
+          herbivore
           expect { cage }.to raise_error
         end
 
         it 'returns an error message' do
-          carnivore1
-          carnivore2
-          herbivore1
+          carnivore
+          herbivore
           expect { cage }.to raise_error('Cage contains dinosaur species')
         end
+      end
+    end
+  end
+
+  describe 'cage status' do
+    context 'powering off a cage with dinosaurs in it' do
+      let(:carnivore) { Carnivore.create(species: 'Tyrannosaurus', name: 'Trex') }
+      let(:cage) { Cage.create(species_type: 'Carnivore', status: 'ACTIVE', carnivores: [carnivore]) }
+
+      it 'returns an error' do
+        cage
+        expect { cage.update(status: 'DOWN') }.to raise_error('Cannot power down cage with dinosaurs in it')
       end
     end
   end
