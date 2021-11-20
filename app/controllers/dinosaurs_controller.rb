@@ -1,5 +1,5 @@
 class DinosaursController < ApplicationController
-  before_action :find_dinosaur, only: [:show]
+  before_action :find_dinosaur, only: [:show, :update]
   before_action :find_dinosaurs, only: [:index]
 
   def show
@@ -20,6 +20,10 @@ class DinosaursController < ApplicationController
     render json: { errors: e }, status: 404
   rescue StandardError => e
     render json: { errors: e.message }, status: 404
+  end
+
+  def update
+    @dinosaur.update!(dinosaur_params)
   end
 
   private

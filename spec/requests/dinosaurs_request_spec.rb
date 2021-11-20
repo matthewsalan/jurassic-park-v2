@@ -107,4 +107,29 @@ RSpec.describe 'Dinosaurs', type: :request do
       end
     end
   end
+
+  describe '#edit' do
+    let(:body) { JSON.parse(response.body) }
+
+    context 'updating a dinosaur' do
+      let(:carnivore) { Carnivore.create(species: 'Tyrannosaurus', name: 'Trex') }
+      let(:dinosaur) { Dinosaur.create(carnivore: carnivore) }
+      let(:cage) { Cage.create(species_type: 'Carnivore', status: 'ACTIVE', carnivores: [carnivore]) }
+      let(:params) { { name: 'Rex' } }
+
+      it 'returns a success code' do
+        cage
+        dinosaur
+        put dinosaur_path(carnivore.id), params: params, as: :json
+        expect(response.status).to eq 200
+      end
+
+      it 'changes dinosaur name' do
+        cage
+        dinosaur
+        put dinosaur_path(carnivore.id), params: params, as: :json
+        expect(body).to eq({ 'cage_id' => cage.id, 'id' => carnivore.id, 'name' => 'Rex', 'species' => 'Tyrannosaurus' })
+      end
+    end
+  end
 end
