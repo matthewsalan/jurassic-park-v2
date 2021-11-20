@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Carnivore, type: :model do
   describe '#create' do
     context 'valid dinosaur' do
-      let(:cage) { Cage.create }
+      let(:cage) { Cage.create(species_type: 'Carnivore') }
       subject { described_class.new(cage: cage, species: 'Velociraptor', name: 'Dino') }
 
       it 'creates a carnivore instance' do

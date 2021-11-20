@@ -72,4 +72,86 @@ RSpec.describe 'Dinosaurs', type: :request do
       end
     end
   end
+
+  describe '#create' do
+    let(:body) { JSON.parse(response.body) }
+
+    context '#create cage with dinosaurs' do
+      let(:params) { { species_type: 'Carnivore', species: 'Velociraptor', name: 'Raptor', with_cage: true, cage_status: 'ACTIVE' } }
+
+      it 'returns success code' do
+        post dinosaurs_path, params: params, as: :json
+        expect(response.status).to eq 201
+      end
+
+      it 'returns the new dinosaur instance' do
+        post dinosaurs_path, params: params, as: :json
+        expect(body).to eq({ 'cage_id' => Cage.last.id, 'id' => Carnivore.last.id, 'name' => 'Raptor', 'species' => 'Velociraptor' })
+      end
+    end
+
+    context 'different species being added to a cage' do
+      let(:params) { { species_type: 'Carnivore', species: 'Velociraptor', name: 'Raptor', cage_id: cage.id } }
+      let(:cage) { Cage.create(species_type: 'Herbivore', status: 'ACTIVE') }
+
+      it 'rollsback the transaction' do
+        cage
+        post dinosaurs_path, params: params, as: :json
+        expect(response.status).to eq 404
+      end
+
+      it 'returns an error message' do
+        cage
+        post dinosaurs_path, params: params, as: :json
+        expect(body['errors']).to eq 'Cage contains a different species'
+      end
+    end
+  end
+
+  describe '#edit' do
+    let(:body) { JSON.parse(response.body) }
+
+    context 'updating a dinosaur' do
+      let(:carnivore) { Carnivore.create(species: 'Tyrannosaurus', name: 'Trex') }
+      let(:dinosaur) { Dinosaur.create(carnivore: carnivore) }
+      let(:cage) { Cage.create(species_type: 'Carnivore', status: 'ACTIVE', carnivores: [carnivore]) }
+      let(:params) { { name: 'Rex' } }
+
+      it 'returns a success code' do
+        cage
+        dinosaur
+        put dinosaur_path(carnivore.id), params: params, as: :json
+        expect(response.status).to eq 200
+      end
+
+      it 'changes dinosaur name' do
+        cage
+        dinosaur
+        put dinosaur_path(carnivore.id), params: params, as: :json
+        expect(body).to eq({ 'cage_id' => cage.id, 'id' => carnivore.id, 'name' => 'Rex', 'species' => 'Tyrannosaurus' })
+      end
+    end
+
+    context 'updating a dinosaurs cage to cage with a different species' do
+      let(:carnivore) { Carnivore.create(species: 'Tyrannosaurus', name: 'Trex') }
+      let(:dinosaur) { Dinosaur.create(carnivore: carnivore) }
+      let(:cage) { Cage.create(species_type: 'Carnivore', status: 'ACTIVE', carnivores: [carnivore]) }
+      let(:cage2) { Cage.create(species_type: 'Herbivore', status: 'ACTIVE') }
+      let(:params) { { cage_id: cage2.id } }
+
+      it 'returns a 404 status' do
+        cage
+        dinosaur
+        put dinosaur_path(carnivore.id), params: params, as: :json
+        expect(response.status).to eq 404
+      end
+
+      it 'returns an error message' do
+        cage
+        dinosaur
+        put dinosaur_path(carnivore.id), params: params, as: :json
+        expect(body['errors']).to eq 'Cage contains a different species'
+      end
+    end
+  end
 end

@@ -10,7 +10,7 @@ class Cage < ApplicationRecord
   scope :down, -> { where(status: 'DOWN') }
 
   def verify_species_match?
-    raise MixedSpeciesError, 'Cage contains dinosaur species' if carnivores.present? && herbivores.present?
+    raise MixedSpeciesError, 'Cage contains different dinosaur species' if carnivores.present? && herbivores.present?
   end
 
   def verify_cage_status
