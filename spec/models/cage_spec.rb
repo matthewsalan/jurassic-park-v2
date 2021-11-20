@@ -43,7 +43,7 @@ RSpec.describe Cage, type: :model do
         it 'returns an error message' do
           carnivore
           herbivore
-          expect { cage }.to raise_error('Cage contains dinosaur species')
+          expect { cage }.to raise_error('Cage contains different dinosaur species')
         end
       end
     end

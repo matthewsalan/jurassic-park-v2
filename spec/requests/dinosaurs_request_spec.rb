@@ -72,4 +72,39 @@ RSpec.describe 'Dinosaurs', type: :request do
       end
     end
   end
+
+  describe '#create' do
+    let(:body) { JSON.parse(response.body) }
+
+    context '#create cage with dinosaurs' do
+      let(:params) { { species_type: 'Carnivore', species: 'Velociraptor', name: 'Raptor', with_cage: true, cage_status: 'ACTIVE' } }
+
+      it 'returns success code' do
+        post dinosaurs_path, params: params, as: :json
+        expect(response.status).to eq 201
+      end
+
+      it 'returns the new dinosaur instance' do
+        post dinosaurs_path, params: params, as: :json
+        expect(body).to eq({ 'cage_id' => Cage.last.id, 'id' => Carnivore.last.id, 'name' => 'Raptor', 'species' => 'Velociraptor' })
+      end
+    end
+
+    context 'different species being added to a cage' do
+      let(:params) { { species_type: 'Carnivore', species: 'Velociraptor', name: 'Raptor', cage_id: cage.id } }
+      let(:cage) { Cage.create(species_type: 'Herbivore', status: 'ACTIVE') }
+
+      it 'rollsback the transaction' do
+        cage
+        post dinosaurs_path, params: params, as: :json
+        expect(response.status).to eq 404
+      end
+
+      it 'rollsback the transaction' do
+        cage
+        post dinosaurs_path, params: params, as: :json
+        expect(body['errors']).to eq 'Cage contains a different species'
+      end
+    end
+  end
 end
