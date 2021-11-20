@@ -34,7 +34,7 @@ RSpec.describe Cage, type: :model do
       context 'same species' do
         let(:cage) { Cage.create(species_type: 'Carnivore', carnivores: [carnivore], herbivores: [herbivore]) }
 
-        it 'creates a cage with only carnivores' do
+        it 'raises an error' do
           carnivore
           herbivore
           expect { cage }.to raise_error
