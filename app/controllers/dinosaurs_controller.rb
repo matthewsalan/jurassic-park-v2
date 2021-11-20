@@ -24,6 +24,10 @@ class DinosaursController < ApplicationController
 
   def update
     @dinosaur.update!(dinosaur_params)
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e }, status: 404
+  rescue StandardError => e
+    render json: { errors: e.message }, status: 404
   end
 
   private

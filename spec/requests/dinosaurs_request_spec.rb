@@ -100,7 +100,7 @@ RSpec.describe 'Dinosaurs', type: :request do
         expect(response.status).to eq 404
       end
 
-      it 'rollsback the transaction' do
+      it 'returns an error message' do
         cage
         post dinosaurs_path, params: params, as: :json
         expect(body['errors']).to eq 'Cage contains a different species'
@@ -129,6 +129,28 @@ RSpec.describe 'Dinosaurs', type: :request do
         dinosaur
         put dinosaur_path(carnivore.id), params: params, as: :json
         expect(body).to eq({ 'cage_id' => cage.id, 'id' => carnivore.id, 'name' => 'Rex', 'species' => 'Tyrannosaurus' })
+      end
+    end
+
+    context 'updating a dinosaurs cage to cage with a different species' do
+      let(:carnivore) { Carnivore.create(species: 'Tyrannosaurus', name: 'Trex') }
+      let(:dinosaur) { Dinosaur.create(carnivore: carnivore) }
+      let(:cage) { Cage.create(species_type: 'Carnivore', status: 'ACTIVE', carnivores: [carnivore]) }
+      let(:cage2) { Cage.create(species_type: 'Herbivore', status: 'ACTIVE') }
+      let(:params) { { cage_id: cage2.id } }
+
+      it 'returns a 404 status' do
+        cage
+        dinosaur
+        put dinosaur_path(carnivore.id), params: params, as: :json
+        expect(response.status).to eq 404
+      end
+
+      it 'returns an error message' do
+        cage
+        dinosaur
+        put dinosaur_path(carnivore.id), params: params, as: :json
+        expect(body['errors']).to eq 'Cage contains a different species'
       end
     end
   end
