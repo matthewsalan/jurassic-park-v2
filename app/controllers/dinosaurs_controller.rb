@@ -1,6 +1,7 @@
 class DinosaursController < ApplicationController
   before_action :find_dinosaur, only: [:show, :update]
   before_action :find_dinosaurs, only: [:index]
+  before_action :create_cage, only: [:create]
 
   def show
     @dinosaur
@@ -12,8 +13,7 @@ class DinosaursController < ApplicationController
 
   def create
     klass = dinosaur_params[:species_type].constantize
-    cage = Cage.create!(cage_params) if dinosaur_params[:with_cage]
-    @dinosaur = klass.create!(create_params.merge(cage_id: cage&.id || dinosaur_params[:cage_id], dinosaurs: [Dinosaur.new]))
+    @dinosaur = klass.create!(create_params.merge(cage_id: @cage&.id || dinosaur_params[:cage_id], dinosaurs: [Dinosaur.new]))
 
     render template: 'dinosaurs/create', status: 201
   rescue ActiveRecord::RecordInvalid => e
@@ -42,7 +42,12 @@ class DinosaursController < ApplicationController
 
   def find_dinosaurs
     render json: { error: 'Must provide a cage_id' }, status: 404 and return unless dinosaur_params[:filter_by].present?
+
     @dinosaurs = Carnivore.where(cage_id: dinosaur_params[:filter_by][:cage_id]) || Herbivore.where(cage_id: dinosaur_params[:filter_by][:cage_id])
+  end
+
+  def create_cage
+    @cage = Cage.create!(cage_params) if dinosaur_params[:with_cage]
   end
 
   def dinosaur_params
